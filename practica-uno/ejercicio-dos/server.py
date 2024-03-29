@@ -1,9 +1,9 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
-from graphene import ObjectType, String, Int, List, Schema, Field, Mutation, Float,Boolean
+from graphene import ObjectType, String, Int, List, Schema, Field, Mutation, Float, Boolean
 
 class Planta(ObjectType):
-    ID = Int()
+    id = Int()
     nombre = String()
     especie = String()
     edad = Int()
@@ -15,15 +15,14 @@ class Query(ObjectType):
     plantas_por_especie = List(Planta, especie=String())
     plantas_por_frutos = List(Planta)
     
-
     def resolve_plantas(root, info):
         return plantas
-
 
     def resolve_plantas_por_especie(info, root, especie):
         PE = []
         for planta in plantas: 
-            if planta.especie == especie:PE.append(planta)
+            if planta.especie == especie:
+                PE.append(planta)
         return PE
 
     def resolve_plantas_por_frutos(info, root):
@@ -32,7 +31,7 @@ class Query(ObjectType):
             if planta.frutos:
                 PF.append(planta)
         return PF    
-        
+
 class CrearPlanta(Mutation):
     class Arguments:
         nombre = String()
@@ -43,9 +42,8 @@ class CrearPlanta(Mutation):
     planta = Field(Planta)
     
     def mutate(root, info,  nombre, especie, edad, altura, frutos):
-        
         nueva_planta = Planta(
-            ID = len(plantas)+1,
+            id = len(plantas)+1,
             nombre = nombre,
             especie = especie,
             edad = edad,
@@ -62,7 +60,7 @@ class EliminarPlanta(Mutation):
     
     def mutate(root, info,  id):
         for i, planta in enumerate(plantas):
-            if planta.ID == id:
+            if planta.id == id:
                 plantas.pop(i)
                 return EliminarPlanta(planta = planta)
         return "lo sentimos"
@@ -78,27 +76,27 @@ class ModificarPlanta(Mutation):
     planta = Field(Planta)
     def mutate(root, info, id, nombre, especie, edad, altura, frutos):
         for planta in plantas:
-            if planta.ID == id:
-                planta.nombre = nombre,
+            if planta.id == id:
+                planta.nombre = nombre
                 planta.especie = especie
-                planta.edad = edad,
-                planta.altura = altura,
+                planta.edad = edad
+                planta.altura = altura
                 planta.frutos = frutos
-        return ModificarPlanta(planta = planta)
-        
+                return ModificarPlanta(planta = planta)
 
 class Mutations(ObjectType):
-    crear_planta = CrearPlanta.Field(),
-    eliminar_planta = EliminarPlanta.Field(),
+    crear_planta = CrearPlanta.Field()
+    eliminar_planta = EliminarPlanta.Field()
     modificar_planta = ModificarPlanta.Field()
-plantas = [
-    Planta(ID=1, nombre='Rosa', especie='Rosa indica', edad=2, altura=0.3, frutos=False),
-    Planta(ID=2, nombre='Girasol', especie='Helianthus annuus', edad=1, altura=0.6, frutos=False),
-    Planta(ID=3, nombre='Orquídea', especie='Phalaenopsis', edad=4, altura=0.5, frutos=False),
-    Planta(ID=4, nombre='Lirio', especie='Lilium', edad=3, altura=0.4, frutos=True)
-]  
-schema = Schema(query=Query, mutation=Mutations)
 
+plantas = [
+    Planta(id=1, nombre='Rosa', especie='Rosa indica', edad=2, altura=0.3, frutos=False),
+    Planta(id=2, nombre='Girasol', especie='Helianthus annuus', edad=1, altura=0.6, frutos=False),
+    Planta(id=3, nombre='Orquídea', especie='Phalaenopsis', edad=4, altura=0.5, frutos=False),
+    Planta(id=4, nombre='Lirio', especie='Lilium', edad=3, altura=0.4, frutos=True)
+]
+
+schema = Schema(query=Query, mutation=Mutations)
 
 class GraphQLRequestHandler(BaseHTTPRequestHandler):
     def response_handler(self, status, data):
@@ -118,7 +116,6 @@ class GraphQLRequestHandler(BaseHTTPRequestHandler):
         else:
             self.response_handler(404, {"Error": "Ruta no existente"})
 
-
 def run_server(port=8000):
     try:
         server_address = ("", port)
@@ -128,7 +125,6 @@ def run_server(port=8000):
     except KeyboardInterrupt:
         print("Apagando servidor web")
         httpd.socket.close()
-
 
 if __name__ == "__main__":
     run_server()
