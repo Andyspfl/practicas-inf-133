@@ -64,7 +64,7 @@ class EliminarPlanta(Mutation):
                 plantas.pop(i)
                 return EliminarPlanta(planta = planta)
         return "lo sentimos"
-    
+
 class ModificarPlanta(Mutation):
     class Arguments:
         id  = Int()
